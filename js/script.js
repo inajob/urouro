@@ -273,6 +273,13 @@ $(function(){
           '足がつかれた・・',
           'ココは一体、、',
           'わーい',
+          'ちこく、ちこく〜',
+          '素数を数えよう・・',
+          'うー、なんだここ・・',
+          '誰かに見られてる？',
+          'コード書きすぎた・・',
+          'あ、 新しいアイデア！',
+          '今日は何しようかな？',
           ])
     }
     if(this.bcount != 0){
@@ -300,7 +307,7 @@ $(function(){
  
     if(this.baloon){
       ctx.fillStyle = 'rgba(200,200,200,0.8)';
-      ctx.fillRect(this.x, this.y - 30, 100, 20);
+      ctx.fillRect(this.x, this.y - 30, 120, 20);
       ctx.beginPath();
       ctx.moveTo(this.x + 10, this.y - 10);
       ctx.lineTo(this.x + 10, this.y);
@@ -308,7 +315,7 @@ $(function(){
       ctx.fill();
 
       ctx.fillStyle = 'black';
-      ctx.fillText(this.btext,this.x + 5, this.y - 15);
+      ctx.fillText(this.btext,this.x + 3, this.y - 15);
     }
   };
 
