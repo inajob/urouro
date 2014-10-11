@@ -200,9 +200,9 @@ $(function(){
     */
 
     if(this.vx < 0){
-      ctx.drawImage(chip, 32 * ((count/5|0) %3), 32, 32, 32, this.x - 8, this.y, this.w + 16, this.h);
+      ctx.drawImage(chip, 32 * ((count/5|0) %3), 32, 32, 32, (this.x|0) - 8, (this.y|0), this.w + 16, this.h);
     }else{
-      ctx.drawImage(chip,  32 * ((count/5|0) %3), 32 * 2, 32, 32, this.x - 8, this.y, this.w + 16, this.h);
+      ctx.drawImage(chip,  32 * ((count/5|0) %3), 32 * 2, 32, 32, (this.x|0) - 8, (this.y|0), this.w + 16, this.h);
     }
  
   };
