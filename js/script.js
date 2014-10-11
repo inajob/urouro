@@ -162,6 +162,9 @@ $(function(){
     if(Math.random() > 0.999){
       this.vy = -10;
     }
+    if(this.ay == 0){
+      this.ay = 1;
+    }
   };
   ActionPiece.prototype.runX = function(){
       this.vx += this.ax;
@@ -194,7 +197,9 @@ $(function(){
       //this.vy = -50;
     }
     if(p instanceof MoverPiece){
-      this.ax = p.mx
+      if(p.mx != 0){
+        this.ax = p.mx
+      }
     }
  
   };
@@ -218,7 +223,9 @@ $(function(){
       this.vy = -30;
     }
     if(p instanceof MoverPiece){
-      this.ay = p.my;
+      //if(p.my != 0){
+        this.ay = p.my;
+      //}
     }
  
   };
