@@ -120,16 +120,18 @@ $(function(){
     ctx.stroke();
   };
 
-  function UpperPiece(x, y, w, h){
+  function MoverPiece(x, y, w, h){
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
     this.dead = false;
     this.hit = false;
+    this.mx = 0;
+    this.my = 0;
   }
-  Object.extend(UpperPiece.prototype, Piece.prototype);
-  UpperPiece.prototype.draw = function(){
+  Object.extend(MoverPiece.prototype, Piece.prototype);
+  MoverPiece.prototype.draw = function(){
     ctx.fillStyle = 'rgb(0,20,0)';
     ctx.fillRect(this.x, this.y, this.w, this.h);
     ctx.strokeStyle = '#ff0';
@@ -137,7 +139,6 @@ $(function(){
     ctx.rect(this.x, this.y, this.w, this.h);
     ctx.stroke();
   };
-
 
 
   function ActionPiece(x, y, w, h){
@@ -192,8 +193,8 @@ $(function(){
     if(p instanceof JumpPiece){
       this.vy = -50;
     }
-    if(p instanceof UpperPiece){
-      this.vy = -30;
+    if(p instanceof MoverPiece){
+      this.vx = p.mx
     }
  
   };
@@ -216,8 +217,8 @@ $(function(){
     if(p instanceof JumpPiece){
       this.vy = -30;
     }
-    if(p instanceof UpperPiece){
-      this.vy = -30;
+    if(p instanceof MoverPiece){
+      this.vy = p.my;
     }
  
   };
@@ -302,6 +303,7 @@ $(function(){
 
  
   function initMap(){
+    var m;
     var tmp = [];
     /*
     for(var i = 0; i < SIZE / PSIZE; i ++){
@@ -314,11 +316,17 @@ $(function(){
     tmp.push(new MapPiece(0, 0, PSIZE, SIZE));
     tmp.push(new MapPiece(SIZE - PSIZE, 0, PSIZE, SIZE));
 
-    tmp.push(new MapPiece(SIZE - PSIZE * 3, PSIZE * 3, PSIZE, SIZE - PSIZE * 6));
+    tmp.push(new MapPiece(SIZE - PSIZE * 3, PSIZE * 3, PSIZE, SIZE - PSIZE * 7));
     tmp.push(new MapPiece(0, SIZE - PSIZE, SIZE - PSIZE * 2, PSIZE));
     tmp.push(new JumpPiece(SIZE - PSIZE * 2, SIZE - PSIZE, PSIZE, PSIZE));
 
-    tmp.push(new UpperPiece(SIZE - PSIZE * 2, PSIZE * 3, PSIZE, SIZE - PSIZE*5));
+    tmp.push(m = new MoverPiece(SIZE - PSIZE * 2, PSIZE * 3, PSIZE, SIZE - PSIZE*5));
+    m.my = -30;
+    tmp.push(m = new MoverPiece(PSIZE, SIZE - PSIZE * 2, SIZE - PSIZE * 3, PSIZE));
+    m.mx = 10;
+    tmp.push(m = new MoverPiece(PSIZE, PSIZE, SIZE - PSIZE * 2, PSIZE));
+    m.mx = -10;
+ 
     return tmp;
   }
   function randMap(){
