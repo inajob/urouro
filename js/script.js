@@ -11,8 +11,8 @@
 
 $(function(){
 
-  var SIZE = 32 * 30;
-  var PSIZE = SIZE / 30;
+  var SIZE = 32 * 25;
+  var PSIZE = SIZE / 25;
   var chrs,effects;
   var count = 0;
 
@@ -191,10 +191,10 @@ $(function(){
     }
 
     if(p instanceof JumpPiece){
-      this.vy = -50;
+      //this.vy = -50;
     }
     if(p instanceof MoverPiece){
-      this.vx = p.mx
+      this.ax = p.mx
     }
  
   };
@@ -218,7 +218,7 @@ $(function(){
       this.vy = -30;
     }
     if(p instanceof MoverPiece){
-      this.vy = p.my;
+      this.ay = p.my;
     }
  
   };
@@ -320,12 +320,12 @@ $(function(){
     tmp.push(new MapPiece(0, SIZE - PSIZE, SIZE - PSIZE * 2, PSIZE));
     tmp.push(new JumpPiece(SIZE - PSIZE * 2, SIZE - PSIZE, PSIZE, PSIZE));
 
-    tmp.push(m = new MoverPiece(SIZE - PSIZE * 2, PSIZE * 3, PSIZE, SIZE - PSIZE*5));
-    m.my = -30;
+    tmp.push(m = new MoverPiece(SIZE - PSIZE * 2, PSIZE * 2, PSIZE, SIZE - PSIZE*3));
+    m.my = -5;
     tmp.push(m = new MoverPiece(PSIZE, SIZE - PSIZE * 2, SIZE - PSIZE * 3, PSIZE));
-    m.mx = 10;
+    m.mx = 1;
     tmp.push(m = new MoverPiece(PSIZE, PSIZE, SIZE - PSIZE * 2, PSIZE));
-    m.mx = -10;
+    m.mx = -1;
  
     return tmp;
   }
