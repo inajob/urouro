@@ -1,0 +1,15 @@
+/* style sheet */
+*{
+  padding:0px;
+  margin:0px;
+}
+body{
+  background-color:black;
+}
+.footer{
+  color:white;
+  text-align:right;
+}
+.footer a{
+  color:yellow;
+}
