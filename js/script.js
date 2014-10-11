@@ -239,4 +239,16 @@ $(function(){
   }
   setTimeout(function(){tick()}, WAIT);
 
+  canv.bind('click',function(e){
+    console.log(e);
+    var x = e.offsetX;
+    var y = e.offsetY;
+    p = new ActionPiece(x, y, PSIZE/2, PSIZE);
+    flag = hitCheck(p);
+    if(!flag){
+      p.ay = 1;
+      chrs.push(p);
+    }
+ 
+  })
 });
