@@ -14,6 +14,7 @@ $(function(){
   var SIZE = 32 * 30;
   var PSIZE = SIZE / 30;
   var chrs;
+  var count = 0;
 
   var canv = $('#canv');
   canv.attr("width", SIZE);
@@ -126,9 +127,9 @@ $(function(){
     */
 
     if(this.vx < 0){
-      ctx.drawImage(chip, 0, 32, 32, 32, this.x - 8, this.y, this.w + 16, this.h);
+      ctx.drawImage(chip, 32 * ((count/5|0) %3), 32, 32, 32, this.x - 8, this.y, this.w + 16, this.h);
     }else{
-      ctx.drawImage(chip, 0, 32 * 2, 32, 32, this.x - 8, this.y, this.w + 16, this.h);
+      ctx.drawImage(chip,  32 * ((count/5|0) %3), 32 * 2, 32, 32, this.x - 8, this.y, this.w + 16, this.h);
     }
  
   };
@@ -229,6 +230,7 @@ $(function(){
   
   var WAIT = 50;
   function tick(){
+    count ++;
     ctx.fillStyle = '#121';
     ctx.fillRect(0,0,SIZE,SIZE);
     run();
