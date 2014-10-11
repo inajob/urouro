@@ -177,6 +177,7 @@ $(function(){
     }
 
     if(this.vy > 0){
+      this.vy = 0; // 失速
       this.y = p.y - this.h;
     }else{
       this.vy = 0; // 失速
