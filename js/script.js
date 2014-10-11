@@ -100,6 +100,23 @@ $(function(){
     ctx.rect(this.x, this.y, this.w, this.h);
     ctx.stroke();
   };
+  function JumpPiece(x, y, w, h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.dead = false;
+  }
+  Object.extend(JumpPiece.prototype, Piece.prototype);
+  JumpPiece.prototype.draw = function(){
+    ctx.fillStyle = 'rgb(0,200,0)';
+    ctx.fillRect(this.x, this.y, this.w, this.h);
+    ctx.strokeStyle = '#0f0';
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, this.w, this.h);
+    ctx.stroke();
+  };
+
 
 
   function ActionPiece(x, y, w, h){
@@ -142,22 +159,34 @@ $(function(){
       this.dead = true;
       effects.push(new Effect(this.x, this.y, this.w, this.h));
     }
-    if(this.vx > 0){
+   if(this.vx > 0){
       this.x = p.x - this.w;
     }else{
       this.x = p.x + p.w;
     }
+
+    if(p instanceof JumpPiece){
+      this.vy = -30;
+    }
+ 
   };
   ActionPiece.prototype.hitY = function(p){ // Y移動後にpに衝突
     if(p instanceof DeadPiece){
       this.dead = true;
       effects.push(new Effect(this.x, this.y, this.w, this.h));
     }
+
     if(this.vy > 0){
       this.y = p.y - this.h;
     }else{
+      this.vy = 0; // 失速
       this.y = p.y + p.h;
     }
+
+    if(p instanceof JumpPiece){
+      this.vy = -30;
+    }
+ 
   };
   ActionPiece.prototype.draw = function(){
     /*
@@ -194,8 +223,8 @@ $(function(){
     return tmp;
   }
   function randMap(){
-    var r,r2,p,flag,r3;
-    for(var i = 0; i < 4 * SIZE / PSIZE; i ++){
+    var r,r2,p,p2,p3,flag, flag2,flag3,r3,r4;
+    for(var i = 0; i < 2 * SIZE / PSIZE; i ++){
       r = Math.floor(Math.random() * SIZE/PSIZE);
       r2 = Math.floor(Math.random() * SIZE/PSIZE);
       r3 = Math.floor(Math.random() * 20) + 1;
@@ -203,6 +232,37 @@ $(function(){
       flag = hitCheck(p);
       if(!flag){
         chrs.push(p);
+      }
+    }
+  }
+  function randSpecial(){
+    for(var i = 0; i < SIZE / PSIZE / 5; i ++){
+      r = Math.floor(Math.random() * SIZE/PSIZE);
+      r2 = Math.floor(Math.random() * SIZE/PSIZE);
+
+      p = new DeadPiece(r * PSIZE, r2 * PSIZE, PSIZE, PSIZE);
+      flag = hitCheck(p);
+      if(!flag){
+        chrs.push(p);
+      }
+ 
+    }
+    for(var i = 0; i < SIZE / PSIZE; i ++){
+      r = Math.floor(Math.random() * SIZE/PSIZE);
+      r2 = Math.floor(Math.random() * SIZE/PSIZE);
+      r3 = Math.floor(Math.random() * 20) + 1;
+      r4 = Math.floor(Math.random() * 20) + 1;
+
+      p = new JumpPiece(r * PSIZE, r2 * PSIZE, PSIZE, PSIZE);
+      p2 = new MapPiece((r - r4) * PSIZE, r2 * PSIZE, r4 * PSIZE, PSIZE/2);
+      p3 = new MapPiece((r + 1) * PSIZE, r2 * PSIZE, r3 * PSIZE, PSIZE/2);
+      flag = hitCheck(p);
+      flag2 = hitCheck(p2);
+      flag3 = hitCheck(p3);
+      if(!flag && !flag2 && !flag3){
+        chrs.push(p);
+        chrs.push(p2);
+        chrs.push(p3);
       }
     }
   }
@@ -218,17 +278,6 @@ $(function(){
         p.ay = 1;
         chrs.push(p);
       }
-    }
-    for(var i = 0; i < SIZE / PSIZE; i ++){
-      r = Math.floor(Math.random() * SIZE/PSIZE);
-      r2 = Math.floor(Math.random() * SIZE/PSIZE);
-
-      p = new DeadPiece(r * PSIZE, r2 * PSIZE, PSIZE, PSIZE);
-      flag = hitCheck(p);
-      if(!flag){
-        chrs.push(p);
-      }
- 
     }
   }
 
@@ -306,6 +355,7 @@ $(function(){
 
   chrs = initMap();
   effects = [];
+  randSpecial(chrs);
   randMap(chrs);
   randChr(chrs);
   
