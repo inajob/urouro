@@ -327,12 +327,12 @@ $(function(){
     tmp.push(new MapPiece(0, SIZE - PSIZE, SIZE - PSIZE * 2, PSIZE));
     tmp.push(new JumpPiece(SIZE - PSIZE * 2, SIZE - PSIZE, PSIZE, PSIZE));
 
-    tmp.push(m = new MoverPiece(SIZE - PSIZE * 2, PSIZE * 2, PSIZE, SIZE - PSIZE*3));
-    m.my = -5;
-    tmp.push(m = new MoverPiece(PSIZE, SIZE - PSIZE * 2, SIZE - PSIZE * 3, PSIZE));
-    m.mx = 1;
-    tmp.push(m = new MoverPiece(PSIZE, PSIZE, SIZE - PSIZE * 2, PSIZE));
-    m.mx = -1;
+    //tmp.push(m = new MoverPiece(SIZE - PSIZE * 2, PSIZE * 2, PSIZE, SIZE - PSIZE*3));
+    //m.my = -5;
+    //tmp.push(m = new MoverPiece(PSIZE, SIZE - PSIZE * 2, SIZE - PSIZE * 3, PSIZE));
+    //m.mx = 1;
+    //tmp.push(m = new MoverPiece(PSIZE, PSIZE, SIZE - PSIZE * 2, PSIZE));
+    //m.mx = -1;
  
     return tmp;
   }
