@@ -73,6 +73,7 @@ $(function(){
     this.w = w;
     this.h = h;
     this.dead = false;
+    this.hit = true;
   }
   Object.extend(MapPiece.prototype, Piece.prototype);
   MapPiece.prototype.draw = function(){
@@ -90,6 +91,7 @@ $(function(){
     this.w = w;
     this.h = h;
     this.dead = false;
+    this.hit = true;
   }
   Object.extend(DeadPiece.prototype, Piece.prototype);
   DeadPiece.prototype.draw = function(){
@@ -106,12 +108,31 @@ $(function(){
     this.w = w;
     this.h = h;
     this.dead = false;
+    this.hit = true;
   }
   Object.extend(JumpPiece.prototype, Piece.prototype);
   JumpPiece.prototype.draw = function(){
     ctx.fillStyle = 'rgb(0,200,0)';
     ctx.fillRect(this.x, this.y, this.w, this.h);
     ctx.strokeStyle = '#0f0';
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, this.w, this.h);
+    ctx.stroke();
+  };
+
+  function UpperPiece(x, y, w, h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.dead = false;
+    this.hit = false;
+  }
+  Object.extend(UpperPiece.prototype, Piece.prototype);
+  UpperPiece.prototype.draw = function(){
+    ctx.fillStyle = 'rgb(0,20,0)';
+    ctx.fillRect(this.x, this.y, this.w, this.h);
+    ctx.strokeStyle = '#ff0';
     ctx.beginPath();
     ctx.rect(this.x, this.y, this.w, this.h);
     ctx.stroke();
@@ -130,10 +151,11 @@ $(function(){
     this.vx = 0;
     this.vy = 0;
     this.dead = false;
+    this.hit = true;
   }
   Object.extend(ActionPiece.prototype, Piece.prototype);
   ActionPiece.prototype.prepare = function(){
-    if(Math.random() > 0.8){
+    if(Math.random() > 0.9){
       this.vx = ((Math.random() * 3 | 0) - 1) * Math.random() * 3;
     }
     if(Math.random() > 0.999){
@@ -159,13 +181,18 @@ $(function(){
       this.dead = true;
       effects.push(new Effect(this.x, this.y, this.w, this.h));
     }
-   if(this.vx > 0){
-      this.x = p.x - this.w;
-    }else{
-      this.x = p.x + p.w;
+    if(p.hit){
+      if(this.vx > 0){
+        this.x = p.x - this.w;
+      }else{
+        this.x = p.x + p.w;
+      }
     }
 
     if(p instanceof JumpPiece){
+      this.vy = -50;
+    }
+    if(p instanceof UpperPiece){
       this.vy = -30;
     }
  
@@ -176,20 +203,49 @@ $(function(){
       effects.push(new Effect(this.x, this.y, this.w, this.h));
     }
 
-    if(this.vy > 0){
-      this.vy = 0; // 失速
-      this.y = p.y - this.h;
-    }else{
-      this.vy = 0; // 失速
-      this.y = p.y + p.h;
+    if(p.hit){
+      if(this.vy > 0){
+        this.vy = 0; // 失速
+        this.y = p.y - this.h;
+      }else{
+        this.vy = 0; // 失速
+        this.y = p.y + p.h;
+      }
     }
 
     if(p instanceof JumpPiece){
       this.vy = -30;
     }
+    if(p instanceof UpperPiece){
+      this.vy = -30;
+    }
  
   };
   ActionPiece.prototype.draw = function(){
+    ctx.fillStyle = 'yellow';
+    ctx.fillRect(this.x, this.y, this.w, this.h);
+    ctx.strokeStyle = '#660';
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, this.w, this.h);
+    ctx.stroke();
+ 
+  };
+
+  function ChrPiece(x, y, w, h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    
+    this.ax = 0;
+    this.ay = 0;
+    this.vx = 0;
+    this.vy = 0;
+    this.dead = false;
+    this.hit = true;
+  }
+  Object.extend(ChrPiece.prototype, ActionPiece.prototype);
+  ChrPiece.prototype.draw = function(){
     /*
     ctx.fillStyle = 'yellow';
     ctx.fillRect(this.x, this.y, this.w, this.h);
@@ -208,6 +264,43 @@ $(function(){
   };
 
 
+  function VMovePiece(x, y, w, h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+
+    this.ax = 0;
+    this.ay = 0;
+    this.vx = 0;
+    this.vy = 3;
+ 
+    this.dead = false;
+    this.hit = true;
+  }
+  Object.extend(VMovePiece.prototype, ActionPiece.prototype);
+  VMovePiece.prototype.prepare = function(){}
+ 
+  VMovePiece.prototype.hitY = function(p){
+    if(this.vy > 0){
+      this.vy = -3; // 失速
+      this.y = p.y - this.h;
+    }else{
+      this.vy = 3; // 失速
+      this.y = p.y + p.h;
+    }
+  }
+  VMovePiece.prototype.draw = function(){
+    ctx.fillStyle = 'rgb(0,0,100)';
+    ctx.fillRect(this.x, this.y, this.w, this.h);
+    ctx.strokeStyle = '#0ff';
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, this.w, this.h);
+    ctx.stroke();
+  };
+
+
+ 
   function initMap(){
     var tmp = [];
     /*
@@ -220,7 +313,12 @@ $(function(){
     tmp.push(new MapPiece(0, 0, SIZE, PSIZE));
     tmp.push(new MapPiece(0, 0, PSIZE, SIZE));
     tmp.push(new MapPiece(SIZE - PSIZE, 0, PSIZE, SIZE));
-    tmp.push(new MapPiece(0, SIZE - PSIZE, SIZE, PSIZE));
+
+    tmp.push(new MapPiece(SIZE - PSIZE * 3, PSIZE * 3, PSIZE, SIZE - PSIZE * 6));
+    tmp.push(new MapPiece(0, SIZE - PSIZE, SIZE - PSIZE * 2, PSIZE));
+    tmp.push(new JumpPiece(SIZE - PSIZE * 2, SIZE - PSIZE, PSIZE, PSIZE));
+
+    tmp.push(new UpperPiece(SIZE - PSIZE * 2, PSIZE * 3, PSIZE, SIZE - PSIZE*5));
     return tmp;
   }
   function randMap(){
@@ -248,6 +346,18 @@ $(function(){
       }
  
     }
+    for(var i = 0; i < SIZE / PSIZE / 5; i ++){
+      r = Math.floor(Math.random() * SIZE/PSIZE);
+      r2 = Math.floor(Math.random() * SIZE/PSIZE);
+
+      p = new VMovePiece(r * PSIZE, r2 * PSIZE, PSIZE, PSIZE);
+      flag = hitCheck(p);
+      if(!flag){
+        chrs.push(p);
+      }
+ 
+    }
+ 
     for(var i = 0; i < SIZE / PSIZE; i ++){
       r = Math.floor(Math.random() * SIZE/PSIZE);
       r2 = Math.floor(Math.random() * SIZE/PSIZE);
@@ -273,7 +383,7 @@ $(function(){
     for(var i = 0; i < 5 * SIZE / PSIZE; i ++){
       r = Math.floor(Math.random() * SIZE/PSIZE);
       r2 = Math.floor(Math.random() * SIZE/PSIZE);
-      p = new ActionPiece(r * PSIZE, r2 * PSIZE, PSIZE/2, PSIZE);
+      p = new ChrPiece(r * PSIZE, r2 * PSIZE, PSIZE/2, PSIZE);
       flag = hitCheck(p);
       if(!flag){
         p.ay = 1;
@@ -378,7 +488,7 @@ $(function(){
   canv.bind('click',function(e){
     var x = e.offsetX;
     var y = e.offsetY;
-    p = new ActionPiece(x, y, PSIZE/2, PSIZE);
+    p = new ChrPiece(x, y, PSIZE/2, PSIZE);
     flag = hitCheck(p);
     if(!flag){
       p.ay = 1;
