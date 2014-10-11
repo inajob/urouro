@@ -26,6 +26,10 @@ $(function(){
 
   ctx.fillStyle = "black";
   ctx.fillRect(0,0,SIZE,SIZE);
+  function choice(arr){
+    var r = Math.random() * arr.length;
+    return arr[r | 0];
+  }
 
   function Effect(x,y,w,h){
     this.x = x;
@@ -251,8 +255,33 @@ $(function(){
     this.vy = 0;
     this.dead = false;
     this.hit = true;
+
+    this.baloon = false;
+    this.bcount = 0;
+    this.btext = "";
   }
   Object.extend(ChrPiece.prototype, ActionPiece.prototype);
+  ChrPiece.prototype.prepare = function(){
+    ActionPiece.prototype.prepare.apply(this,arguments);
+    if(Math.random() > 0.999){
+      this.baloon = true;
+      this.bcount = 100;
+      this.btext = choice([
+          'おなかすいた',
+          'プログラムかこう！',
+          'JavaScriptで遊ぼう',
+          '足がつかれた・・',
+          'ココは一体、、',
+          'わーい',
+          ])
+    }
+    if(this.bcount != 0){
+      this.bcount --;
+      if(this.bcount == 0){
+        this.baloon = false;
+      }
+    }
+  }
   ChrPiece.prototype.draw = function(){
     /*
     ctx.fillStyle = 'yellow';
@@ -269,6 +298,18 @@ $(function(){
       ctx.drawImage(chip,  32 * ((count/5|0) %3), 32 * 2, 32, 32, (this.x|0) - 8, (this.y|0), this.w + 16, this.h);
     }
  
+    if(this.baloon){
+      ctx.fillStyle = 'rgba(200,200,200,0.8)';
+      ctx.fillRect(this.x, this.y - 30, 100, 20);
+      ctx.beginPath();
+      ctx.moveTo(this.x + 10, this.y - 10);
+      ctx.lineTo(this.x + 10, this.y);
+      ctx.lineTo(this.x + 10 + 10, this.y - 10);
+      ctx.fill();
+
+      ctx.fillStyle = 'black';
+      ctx.fillText(this.btext,this.x + 5, this.y - 15);
+    }
   };
 
 
@@ -305,6 +346,7 @@ $(function(){
     ctx.beginPath();
     ctx.rect(this.x, this.y, this.w, this.h);
     ctx.stroke();
+
   };
 
 
