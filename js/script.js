@@ -13,7 +13,7 @@ $(function(){
 
   var SIZE = 32 * 30;
   var PSIZE = SIZE / 30;
-  var chrs;
+  var chrs,effects;
   var count = 0;
 
   var canv = $('#canv');
@@ -27,10 +27,28 @@ $(function(){
   ctx.fillStyle = "black";
   ctx.fillRect(0,0,SIZE,SIZE);
 
+  function Effect(x,y,w,h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.dead = false;
+    this.count = 10;
+  };
+  Effect.prototype.draw = function(){
+    if(this.count == 0){
+      this.dead = true;
+    }else{
+      this.count --;
+    }
+    ctx.fillStyle = 'rgba(255,255,255,' + (this.count / 10) + ')';
+    ctx.fillRect(this.x, this.y, this.w, this.h);
+  }
 
   function Piece(){
   }
   Piece.prototype = {
+    prepare:function(){},
     runX:function(){},
     hitX:function(){},
     runY:function(){},
@@ -54,11 +72,9 @@ $(function(){
     this.y = y;
     this.w = w;
     this.h = h;
+    this.dead = false;
   }
   Object.extend(MapPiece.prototype, Piece.prototype);
-  MapPiece.prototype.prepare = function(){};
-  MapPiece.prototype.runX = function(){};
-  MapPiece.prototype.runY = function(){};
   MapPiece.prototype.draw = function(){
     ctx.fillStyle = 'rgb(100,10,0)';
     ctx.fillRect(this.x, this.y, this.w, this.h);
@@ -67,6 +83,24 @@ $(function(){
     ctx.rect(this.x, this.y, this.w, this.h);
     ctx.stroke();
   };
+
+  function DeadPiece(x, y, w, h){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.dead = false;
+  }
+  Object.extend(DeadPiece.prototype, Piece.prototype);
+  DeadPiece.prototype.draw = function(){
+    ctx.fillStyle = 'rgb(200,0,0)';
+    ctx.fillRect(this.x, this.y, this.w, this.h);
+    ctx.strokeStyle = '#f00';
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, this.w, this.h);
+    ctx.stroke();
+  };
+
 
   function ActionPiece(x, y, w, h){
     this.x = x;
@@ -78,6 +112,7 @@ $(function(){
     this.ay = 0;
     this.vx = 0;
     this.vy = 0;
+    this.dead = false;
   }
   Object.extend(ActionPiece.prototype, Piece.prototype);
   ActionPiece.prototype.prepare = function(){
@@ -103,18 +138,26 @@ $(function(){
       this.y += this.vy;
   };
   ActionPiece.prototype.hitX = function(p){ // X移動後にpに衝突
-      if(this.vx > 0){
-        this.x = p.x - this.w;
-      }else{
-        this.x = p.x + p.w;
-      }
+    if(p instanceof DeadPiece){
+      this.dead = true;
+      effects.push(new Effect(this.x, this.y, this.w, this.h));
+    }
+    if(this.vx > 0){
+      this.x = p.x - this.w;
+    }else{
+      this.x = p.x + p.w;
+    }
   };
   ActionPiece.prototype.hitY = function(p){ // Y移動後にpに衝突
-      if(this.vy > 0){
-        this.y = p.y - this.h;
-      }else{
-        this.y = p.y + p.h;
-      }
+    if(p instanceof DeadPiece){
+      this.dead = true;
+      effects.push(new Effect(this.x, this.y, this.w, this.h));
+    }
+    if(this.vy > 0){
+      this.y = p.y - this.h;
+    }else{
+      this.y = p.y + p.h;
+    }
   };
   ActionPiece.prototype.draw = function(){
     /*
@@ -176,22 +219,59 @@ $(function(){
         chrs.push(p);
       }
     }
+    for(var i = 0; i < SIZE / PSIZE; i ++){
+      r = Math.floor(Math.random() * SIZE/PSIZE);
+      r2 = Math.floor(Math.random() * SIZE/PSIZE);
+
+      p = new DeadPiece(r * PSIZE, r2 * PSIZE, PSIZE, PSIZE);
+      flag = hitCheck(p);
+      if(!flag){
+        chrs.push(p);
+      }
+ 
+    }
   }
 
 
-  function map(f){
-    for(var i = 0; i < chrs.length; i ++){
-      f(chrs[i]);
+  function map(ar,f){
+    for(var i = 0; i < ar.length; i ++){
+      f(ar[i]);
     }
   }
   function drawChrs(){
-    map(function(p){
+    map(chrs, function(p){
+      p.draw()
+    });
+  }
+  function drawEffect(){
+    map(effects, function(p){
       p.draw()
     });
   }
 
+
+
+  function del(){
+    var ret = [];
+    map(chrs, function(p){
+      if(!p.dead){
+        ret.push(p);
+      }
+    });
+    chrs = ret;
+  }
+  function delEffect(){
+    var ret = [];
+    map(effects, function(p){
+      if(!p.dead){
+        ret.push(p);
+      }
+    });
+    effects = ret;
+  }
+ 
   function run(){
-    map(function(p){
+    map(chrs, function(p){
       p.prepare();
       p.runX();
       hitXCheck(p)
@@ -201,7 +281,7 @@ $(function(){
   }
   function hitCheck(target){
     var flag = false;
-    map(function(p){
+    map(chrs, function(p){
       if(p != target && target.isHit(p)){
         flag = true;
       }
@@ -209,14 +289,14 @@ $(function(){
     return flag;
   }
   function hitXCheck(target){
-    map(function(p){
+    map(chrs, function(p){
       if(p != target && target.isHit(p)){
         target.hitX(p);
       }
     });
   }
   function hitYCheck(target){
-    map(function(p){
+    map(chrs, function(p){
       if(p != target && target.isHit(p)){
         target.hitY(p);
       }
@@ -225,6 +305,7 @@ $(function(){
 
 
   chrs = initMap();
+  effects = [];
   randMap(chrs);
   randChr(chrs);
   
@@ -233,14 +314,17 @@ $(function(){
     count ++;
     ctx.fillStyle = '#121';
     ctx.fillRect(0,0,SIZE,SIZE);
+    del();
+    delEffect();
     run();
     drawChrs();
+    drawEffect();
     setTimeout(function(){tick()}, WAIT);
   }
   setTimeout(function(){tick()}, WAIT);
 
+  // クリックすると発生する
   canv.bind('click',function(e){
-    console.log(e);
     var x = e.offsetX;
     var y = e.offsetY;
     p = new ActionPiece(x, y, PSIZE/2, PSIZE);
